@@ -1,40 +1,40 @@
 package main
 
 import (
-	"github.com/gogue-framework/gogue"
+	"github.com/gogue-framework/gogue/ui"
 	"runtime"
 )
 
 var (
 	windowHeight int
-	windowWidth int
+	windowWidth  int
 )
 
 func init() {
 	runtime.LockOSThread()
-	
+
 	windowWidth = 50
 	windowHeight = 25
-	gogue.InitConsole(windowWidth, windowHeight, "Gogue Powered Roguelike", false)
-	gogue.SetPrimaryFont(16, "press-start.ttf")
+	ui.InitConsole(windowWidth, windowHeight, "Gogue Powered Roguelike", false)
+	ui.SetPrimaryFont(16, "press-start.ttf")
 }
 
 func main() {
-	gogue.SetCompositionMode(0)
+	ui.SetCompositionMode(0)
 
 	text := "Welcome to Gogue!"
-	gogue.PrintText((windowWidth / 2) -  (len(text) / 2), windowHeight / 2, 0, 0, text, "white", "", 0)
-	
-	gogue.Refresh()
+	ui.PrintText((windowWidth/2)-(len(text)/2), windowHeight/2, 0, 0, text, "white", "", 0)
+
+	ui.Refresh()
 
 	for {
-		key := gogue.ReadInput(false)
+		key := ui.ReadInput(false)
 
-		if key == gogue.KEY_CLOSE || key == gogue.KEY_ESCAPE {
+		if key == ui.KeyClose || key == ui.KeyEscape {
 			break
 		}
 
-		gogue.Refresh()
+		ui.Refresh()
 	}
-	gogue.CloseConsole()
+	ui.CloseConsole()
 }
