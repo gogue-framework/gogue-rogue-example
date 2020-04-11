@@ -52,21 +52,7 @@ func (gs *GameScreen) Enter() {}
 func (gs *GameScreen) Exit() {}
 func (gs *GameScreen) UseEcs() bool { return true }
 
-func (gs *GameScreen) Render() {
-	// Clear the entire window
-	for i := 0; i <= 2; i++ {
-		ui.ClearWindow(windowWidth, windowHeight, i)
-	}
-
-	centerX := windowWidth / 2
-	centerY := windowHeight / 2
-
-	title := "Main Game Screen"
-	instruction := "Press {Down Arrow} to return to menu!"
-
-	ui.PrintText(centerX - len(title) / 2, centerY, 0, 0, title, "", "", 0)
-	ui.PrintText(centerX - len(instruction) / 2, centerY + 2, 0, 0, instruction, "", "", 0)
-}
+func (gs *GameScreen) Render() {}
 
 func (gs *GameScreen) HandleInput() {
 	key := ui.ReadInput(false)
