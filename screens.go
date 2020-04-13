@@ -4,11 +4,13 @@ import (
 	"fmt"
 	"github.com/gogue-framework/gogue/ui"
 	"os"
+	"reflect"
 )
 
-type TitleScreen struct {}
-func (ts *TitleScreen) Enter() {}
-func (ts *TitleScreen) Exit() {}
+type TitleScreen struct{}
+
+func (ts *TitleScreen) Enter()       {}
+func (ts *TitleScreen) Exit()        {}
 func (ts *TitleScreen) UseEcs() bool { return false }
 
 func (ts *TitleScreen) Render() {
@@ -20,8 +22,8 @@ func (ts *TitleScreen) Render() {
 	title := "Gogue Roguelike"
 	instruction := "Press {Up Arrow} to begin! Or Press {ESC} to exit"
 
-	ui.PrintText(centerX - len(title) / 2, centerY, 0, 0, title, "", "", 0)
-	ui.PrintText(centerX - len(instruction) / 2, centerY + 2, 0, 0, instruction, "", "", 0)
+	ui.PrintText(centerX-len(title)/2, centerY, 0, 0, title, "", "", 0)
+	ui.PrintText(centerX-len(instruction)/2, centerY+2, 0, 0, instruction, "", "", 0)
 }
 
 func (ts *TitleScreen) HandleInput() {
@@ -47,32 +49,14 @@ func (ts *TitleScreen) HandleInput() {
 	}
 }
 
-type GameScreen struct {}
-func (gs *GameScreen) Enter() {}
-func (gs *GameScreen) Exit() {}
-func (gs *GameScreen) UseEcs() bool { return true }
+type GameScreen struct{}
 
-func (gs *GameScreen) Render() {}
-
-func (gs *GameScreen) HandleInput() {
-	key := ui.ReadInput(false)
-
-	if key == ui.KeyEscape || key == ui.KeyClose {
-		os.Exit(0)
-	}
-
-	if key == ui.KeyDown {
-		// Change the screen to the title screen
-		err := screenManager.SetScreenByName("title")
-
-		if err != nil {
-			// If something goes wrong switching screens, log the error and abort
-			fmt.Print(err)
-			return
-		}
-
-		// Immediately call the render method of the new current screen, otherwise, the existing screen will stay
-		// rendered until the user provides input
-		screenManager.CurrentScreen.Render()
-	}
+func (gs *GameScreen) Enter() {
+	// Call the ECS System Render immediately upon entering this screen. This will ensure all entities are drawn
+	// before the game blocks for any user input
+	ecsController.ProcessSystem(reflect.TypeOf(SystemRender{}))
 }
+func (gs *GameScreen) Exit()        {}
+func (gs *GameScreen) UseEcs() bool { return true }
+func (gs *GameScreen) Render()      {}
+func (gs *GameScreen) HandleInput() {}

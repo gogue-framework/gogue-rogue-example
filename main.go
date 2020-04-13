@@ -41,7 +41,8 @@ func init() {
 		Name:        "Player",
 		Description: "The player character",
 	}
-	player = ecsController.CreateEntity([]ecs.Component{playerPosition, playerAppearance})
+	playerMovement := MovementComponent{}
+	player = ecsController.CreateEntity([]ecs.Component{playerPosition, playerAppearance, playerMovement})
 }
 
 // registerScreens initializes and adds any game screens
@@ -60,10 +61,14 @@ func registerScreens() {
 func registerComponents() {
 	ecsController.MapComponentClass("position", &PositionComponent{})
 	ecsController.MapComponentClass("appearance", &AppearanceComponent{})
+	ecsController.MapComponentClass("movement", &MovementComponent{})
 }
 
 func registerSystems() {
 	render := SystemRender{ecsController: ecsController}
+	input := SystemInput{ecsController: ecsController}
+
+	ecsController.AddSystem(input, 0)
 	ecsController.AddSystem(render, 1)
 }
 
@@ -85,12 +90,12 @@ func main() {
 			ui.ClearWindow(windowWidth, windowHeight, i)
 		}
 
-		screenManager.CurrentScreen.HandleInput()
-
 		// Check if the current screen requires the ECS. If so, process all systems. If not, handle any input the screen
 		// requires, and do not process and ECS systems
 		if screenManager.CurrentScreen.UseEcs() {
 			ecsController.Process(excludedSystems)
+		} else {
+			screenManager.CurrentScreen.HandleInput()
 		}
 
 		screenManager.CurrentScreen.Render()

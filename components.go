@@ -11,16 +11,21 @@ type PositionComponent struct {
 	Y int
 }
 
-func (ps PositionComponent) TypeOf() reflect.Type { return reflect.TypeOf(ps)}
+func (pc PositionComponent) TypeOf() reflect.Type { return reflect.TypeOf(pc) }
 
 // AppearanceComponent defines what an entity looks like when rendered onto the terminal. It contains a glyph character
 // representation, the layer it should be rendered on, and a name and description. An entity must have an appearance
 // component to be rendered.
 type AppearanceComponent struct {
-	Glyph ui.Glyph
-	Layer int
-	Name string
+	Glyph       ui.Glyph
+	Layer       int
+	Name        string
 	Description string
 }
 
-func (as AppearanceComponent) TypeOf() reflect.Type { return reflect.TypeOf(as) }
+func (ac AppearanceComponent) TypeOf() reflect.Type { return reflect.TypeOf(ac) }
+
+// MovementComponent is a flag component (no metadata). Its presence on an entity indicates that the entity can freely move
+type MovementComponent struct{}
+
+func (mc MovementComponent) TypeOf() reflect.Type { return reflect.TypeOf(mc) }
