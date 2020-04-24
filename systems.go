@@ -17,11 +17,14 @@ func (sr SystemRender) Process() {
 			pos := sr.ecsController.GetComponent(e, PositionComponent{}.TypeOf()).(PositionComponent)
 			appearance := sr.ecsController.GetComponent(e, AppearanceComponent{}.TypeOf()).(AppearanceComponent)
 
+			// Get the coordinates of the entity, in reference to where the camera currently is.
+			cameraX, cameraY := gameCamera.ToCameraCoordinates(pos.X, pos.Y)
+
 			// Clear the cell this entity occupies, so it is the only glyph drawn there
-			for i := 0; i <= 2; i++ {
-				ui.ClearArea(pos.X, pos.Y, 1, 1, i)
+			for i := 1; i <= 2; i++ {
+				ui.ClearArea(cameraX, cameraY, 1, 1, i)
 			}
-			ui.PrintGlyph(pos.X, pos.Y, appearance.Glyph, "", appearance.Layer)
+			ui.PrintGlyph(cameraX, cameraY, appearance.Glyph, "", appearance.Layer)
 		}
 	}
 }
@@ -68,13 +71,16 @@ func (si SystemInput) Process() {
 				dx, dy = 0, 1
 			}
 
-			newX = dx + pos.X
-			newY = dy + pos.Y
+			if !gameMap.IsBlocked(pos.X + dx, pos.Y + dy) && !GetBlockingEntities(pos.X + dx, pos.Y + dy, si.ecsController) {
+				newX = dx + pos.X
+				newY = dy + pos.Y
 
-			ui.PrintGlyph(pos.X, pos.Y, ui.EmptyGlyph, "", 1)
+				cameraX, cameraY := gameCamera.ToCameraCoordinates(pos.X, pos.Y)
+				ui.PrintGlyph(cameraX, cameraY, ui.EmptyGlyph, "", 1)
 
-			newPos := PositionComponent{X: newX, Y: newY}
-			ecsController.UpdateComponent(player, PositionComponent{}.TypeOf(), newPos)
+				newPos := PositionComponent{X: newX, Y: newY}
+				si.ecsController.UpdateComponent(player, PositionComponent{}.TypeOf(), newPos)
+			}
 		}
 	}
 }

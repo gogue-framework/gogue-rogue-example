@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"github.com/gogue-framework/gogue/ui"
 	"os"
-	"reflect"
 )
 
 type TitleScreen struct{}
@@ -54,9 +53,16 @@ type GameScreen struct{}
 func (gs *GameScreen) Enter() {
 	// Call the ECS System Render immediately upon entering this screen. This will ensure all entities are drawn
 	// before the game blocks for any user input
-	ecsController.ProcessSystem(reflect.TypeOf(SystemRender{}))
+	playerPos := ecsController.GetComponent(player, PositionComponent{}.TypeOf()).(PositionComponent)
+	gameMap.Render(gameCamera, playerPos.X, playerPos.Y)
 }
-func (gs *GameScreen) Exit()        {}
+func (gs *GameScreen) Exit()        {
+	// Clear all entities from the screen
+	ui.ClearWindow(windowWidth, windowHeight, 1)
+}
 func (gs *GameScreen) UseEcs() bool { return true }
-func (gs *GameScreen) Render()      {}
+func (gs *GameScreen) Render()      {
+	playerPos := ecsController.GetComponent(player, PositionComponent{}.TypeOf()).(PositionComponent)
+	gameMap.Render(gameCamera, playerPos.X, playerPos.Y)
+}
 func (gs *GameScreen) HandleInput() {}

@@ -29,3 +29,8 @@ func (ac AppearanceComponent) TypeOf() reflect.Type { return reflect.TypeOf(ac) 
 type MovementComponent struct{}
 
 func (mc MovementComponent) TypeOf() reflect.Type { return reflect.TypeOf(mc) }
+
+// BlockingComponent is a flag component that indicates if the entity block movement or not
+type BlockingComponent struct {}
+
+func (bc BlockingComponent) TypeOf() reflect.Type { return reflect.TypeOf(bc) }
