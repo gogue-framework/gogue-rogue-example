@@ -1,6 +1,9 @@
 package main
 
-import "github.com/gogue-framework/gogue/ecs"
+import (
+	"github.com/gogue-framework/gogue/ecs"
+	"github.com/gogue-framework/gogue/gamemap"
+)
 
 // GetBlockingEntities returns true if there is an entity at the location, and that entity has the Blocking component
 func GetBlockingEntities(x, y int, entityController *ecs.Controller) bool {
@@ -13,4 +16,14 @@ func GetBlockingEntities(x, y int, entityController *ecs.Controller) bool {
 	}
 
 	return false
+}
+
+// Debug Utils
+// MakeAllVisible makes all map Tiles visible to the player
+func MakeAllVisible(mapSurface *gamemap.GameMap) {
+	for x := 0; x < mapSurface.Width; x++ {
+		for y := 0; y < mapSurface.Height; y++ {
+			mapSurface.Tiles[x][y].Visible = true
+		}
+	}
 }

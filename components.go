@@ -34,3 +34,8 @@ func (mc MovementComponent) TypeOf() reflect.Type { return reflect.TypeOf(mc) }
 type BlockingComponent struct {}
 
 func (bc BlockingComponent) TypeOf() reflect.Type { return reflect.TypeOf(bc) }
+
+// SimpeAIComponent is a basic AI. The entity will move randomy around the map.
+type SimpleAiComponent struct {}
+
+func (sc SimpleAiComponent) TypeOf() reflect.Type { return reflect.TypeOf(sc) }

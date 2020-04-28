@@ -1,0 +1,86 @@
+{
+  "level_1": {
+    "small_rat": {
+      "components": {
+        "position": {},
+        "appearance": {
+          "Name": "Small rat",
+          "Description": "A very small rat. It doesn't look very tough.",
+          "Glyph": {
+            "Char": "r",
+            "Color": "#8B4513"
+          },
+          "Layer": 1
+        },
+        "blocking": {},
+        "simpleai": {}
+      }
+    },
+    "large_rat": {
+      "components": {
+        "position": {},
+        "appearance": {
+          "Name": "Large rat",
+          "Description": "A very large rat. It's big...but still doesn't look too tough.",
+          "Glyph": {
+            "Char": "R",
+            "Color": "#D2691E"
+          },
+          "Layer": 1
+        },
+        "blocking": {},
+        "simpleai": {}
+      }
+    },
+    "cave_bat": {
+      "components": {
+        "position": {},
+        "appearance": {
+          "Name": "Cave bat",
+          "Description": "A small, gray, bat. It's fast, bot not a threat. By itself.",
+          "Glyph": {
+            "Char": "b",
+            "Color": "gray"
+          },
+          "Layer": 1
+        },
+        "blocking": {},
+        "simpleai": {}
+      }
+    }
+  },
+  "level_2": {
+    "pissed_rat": {
+      "components": {
+        "position": {},
+        "appearance": {
+          "Name": "Small, pissed off, rat",
+          "Description": "A very small rat. It looks really pissed off.",
+          "Glyph": {
+            "Char": "r",
+            "Color": "red"
+          },
+          "Layer": 1
+        },
+        "blocking": {},
+        "simpleai": {}
+      }
+    },
+    "kobold": {
+      "components": {
+        "position": {},
+        "appearance": {
+          "Name": "Kobold",
+          "Description": "A small humanoid creature, it is clothed in rags, and is carrying a rock. Looks like it knows how to use it, too.",
+          "Glyph": {
+            "Char": "k",
+            "Color": "brown"
+          },
+          "Layer": 1
+        },
+        "blocking": {},
+        "simpleai": {}
+      }
+    }
+  }
+}

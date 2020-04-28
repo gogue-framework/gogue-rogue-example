@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gogue-framework/gogue/camera"
+	"github.com/gogue-framework/gogue/data"
 	"github.com/gogue-framework/gogue/ecs"
 	"github.com/gogue-framework/gogue/fov"
 	"github.com/gogue-framework/gogue/gamemap"
@@ -40,6 +41,11 @@ var (
 	player int
 	playerFOV fov.FieldOfVision
 	torchRadius int
+
+	// Data Loading
+	dataLoader *data.FileLoader
+	entityLoader *data.EntityLoader
+	enemies map[string]interface{}
 )
 
 func init() {
@@ -64,7 +70,8 @@ func init() {
 		Description: "The player character",
 	}
 	playerMovement := MovementComponent{}
-	player = ecsController.CreateEntity([]ecs.Component{playerPosition, playerAppearance, playerMovement})
+	playerBlocks := BlockingComponent{}
+	player = ecsController.CreateEntity([]ecs.Component{playerPosition, playerAppearance, playerMovement, playerBlocks})
 
 	wallGlyph = ui.NewGlyph("#", "white", "gray")
 	floorGlyph = ui.NewGlyph(".", "white", "gray")
@@ -80,6 +87,11 @@ func init() {
 	playerFOV.InitializeFOV()
 	torchRadius = 5
 	playerFOV.SetTorchRadius(torchRadius)
+
+	// Data loading - load data from relevant data definition files
+	dataLoader, _ = data.NewFileLoader("gamedata")
+	entityLoader = data.NewEntityLoader(ecsController)
+	loadData()
 }
 
 // SetupGameMap initializes a new GameMap, with a fixed width and height (this can be larger than the game window)
@@ -111,27 +123,62 @@ func registerScreens() {
 
 // registerComponent attaches, via a defined name, any component classes we want to use with the ECS controller
 func registerComponents() {
-	ecsController.MapComponentClass("position", &PositionComponent{})
-	ecsController.MapComponentClass("appearance", &AppearanceComponent{})
-	ecsController.MapComponentClass("movement", &MovementComponent{})
+	ecsController.MapComponentClass("position", PositionComponent{})
+	ecsController.MapComponentClass("appearance", AppearanceComponent{})
+	ecsController.MapComponentClass("movement", MovementComponent{})
+	ecsController.MapComponentClass("blocking", BlockingComponent{})
+	ecsController.MapComponentClass("simpleai", SimpleAiComponent{})
 }
 
 func registerSystems() {
 	render := SystemRender{ecsController: ecsController}
 	input := SystemInput{ecsController: ecsController}
+	simpleAi := SystemSimpleAi{ecsController: ecsController, mapSurface: gameMap}
 
 	ecsController.AddSystem(input, 0)
-	ecsController.AddSystem(render, 1)
+	ecsController.AddSystem(simpleAi, 1)
+	ecsController.AddSystem(render, 2)
 }
+
+// loadData loads game data (enemies definitions, item definitions, map progression data, etc) via Gogues data file and
+// entity loader. Any entities loaded are stored in string indexed maps, making it easy to pull out and create an entity
+// via its defined name
+func loadData() {
+	enemies, _ = dataLoader.LoadDataFromFile("enemies.json")
+}
+
+// placeEnemies places a handful of enemies at random around the level
+func placeEnemies(numEnemies int) {
+	for i := 0; i < numEnemies; i++ {
+		var entityKeys []string
+		// Build an index for each entity, so we can randomly choose one
+		for key := range enemies["level_1"].(map[string]interface{}) {
+			entityKeys = append(entityKeys, key)
+		}
+
+		// Now, randomly pick an entity
+		entityKey := entityKeys[rng.Range(0, len(entityKeys))]
+		entity := enemies["level_1"].(map[string]interface{})[entityKey].(map[string]interface{})
+
+		// Create the entity based off the chosen item
+		loadedEntity := entityLoader.CreateSingleEntity(entity)
+
+		randomTile := gameMap.FloorTiles[rng.Range(0, len(gameMap.FloorTiles))]
+		ecsController.UpdateComponent(loadedEntity, PositionComponent{}.TypeOf(), PositionComponent{X: randomTile.X, Y: randomTile.Y})
+	}
+}
+
 
 func main() {
 	// Register all screens
 	registerScreens()
-	registerSystems()
-	excludedSystems := []reflect.Type{reflect.TypeOf(SystemRender{})}
 
 	// Initialize the game map
 	gameMap = SetupGameMap()
+	placeEnemies(100)
+
+	registerSystems()
+	excludedSystems := []reflect.Type{reflect.TypeOf(SystemRender{})}
 
 	// Set the current screen to the title
 	_ = screenManager.SetScreenByName("title")

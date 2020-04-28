@@ -2,6 +2,7 @@ package main
 
 import (
 	"github.com/gogue-framework/gogue/ecs"
+	"github.com/gogue-framework/gogue/gamemap"
 	"github.com/gogue-framework/gogue/ui"
 )
 
@@ -20,11 +21,13 @@ func (sr SystemRender) Process() {
 			// Get the coordinates of the entity, in reference to where the camera currently is.
 			cameraX, cameraY := gameCamera.ToCameraCoordinates(pos.X, pos.Y)
 
-			// Clear the cell this entity occupies, so it is the only glyph drawn there
-			for i := 1; i <= 2; i++ {
-				ui.ClearArea(cameraX, cameraY, 1, 1, i)
+			if gameMap.IsVisibleToPlayer(pos.X, pos.Y) {
+				// Clear the cell this entity occupies, so it is the only glyph drawn there
+				for i := 1; i <= 2; i++ {
+					ui.ClearArea(cameraX, cameraY, 1, 1, i)
+				}
+				ui.PrintGlyph(cameraX, cameraY, appearance.Glyph, "", appearance.Layer)
 			}
-			ui.PrintGlyph(cameraX, cameraY, appearance.Glyph, "", appearance.Layer)
 		}
 	}
 }
@@ -46,6 +49,11 @@ func (si SystemInput) Process() {
 		screenManager.CurrentScreen.Render()
 
 		return
+	}
+
+	if key == ui.KeyZ {
+		// Make all Tiles visible
+		MakeAllVisible(gameMap)
 	}
 
 	// Fow now, just handle movement
@@ -81,6 +89,42 @@ func (si SystemInput) Process() {
 				newPos := PositionComponent{X: newX, Y: newY}
 				si.ecsController.UpdateComponent(player, PositionComponent{}.TypeOf(), newPos)
 			}
+		}
+	}
+}
+
+type SystemSimpleAi struct {
+	ecsController *ecs.Controller
+	mapSurface    *gamemap.GameMap
+}
+
+func (sas SystemSimpleAi) Process() {
+	// Process all entities that have the simple AI component attached to them
+	// For now, just have them print something
+	for _, entity := range sas.ecsController.GetEntitiesWithComponent(SimpleAiComponent{}.TypeOf()) {
+		//Act
+		if sas.ecsController.HasComponent(entity, AppearanceComponent{}.TypeOf()) {
+			// For the time being, just have the AI move around randomly. This will be fleshed out in time.
+			pos := sas.ecsController.GetComponent(entity, PositionComponent{}.TypeOf()).(PositionComponent)
+			dx := rng.RangeNegative(-1, 1)
+			dy := rng.RangeNegative(-1, 1)
+
+			var newX, newY int
+
+			if !sas.mapSurface.IsBlocked(pos.X + dx, pos.Y + dy) && !GetBlockingEntities(pos.X + dx, pos.Y + dy, sas.ecsController){
+				newX = dx + pos.X
+				newY = dy + pos.Y
+			} else {
+				newX = pos.X
+				newY = pos.Y
+			}
+
+			cameraX, cameraY := gameCamera.ToCameraCoordinates(pos.X, pos.Y)
+			ui.PrintGlyph(cameraX, cameraY, ui.EmptyGlyph, "", 1)
+
+
+			newPos := PositionComponent{X: newX, Y: newY}
+			sas.ecsController.UpdateComponent(entity, PositionComponent{}.TypeOf(), newPos)
 		}
 	}
 }
